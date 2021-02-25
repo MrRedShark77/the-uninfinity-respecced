@@ -12,6 +12,7 @@ const TABS = {
         {id: 'Sacrifice', unl() { return true }, style: ''},
         {id: 'Achievements', unl() { return true }, style: ''},
         {id: 'Options', unl() { return true }, style: ''},
+        {id: 'Automation', unl() { return player.unlocks.includes('automation') }, style: ''},
     ],
 }
 
@@ -26,6 +27,8 @@ const FUNCTIONS = {
             let mult = E(1.5)
             if (player.upgs.sac.includes(11)) mult = E(1.8)
             if (player.achs.includes(30)) mult = mult.mul(1.1)
+            if (player.achs.includes(24) && x == 1) mult = mult.mul(1.1)
+            if (player.achs.includes(26) && x == 1) mult = mult.mul(1.1)
 
             let lvl = player.length_generators[x].boughts
             if (lvl.gte(100)) lvl = lvl.sub(100).pow(0.9).add(100)
@@ -117,7 +120,37 @@ const FUNCTIONS = {
                 player.mults = E(0)
             },
             effect() {
-                let eff = player.metas.add(1).pow(1/4)
+                let lvl = player.metas
+                if (lvl.gte(10)) lvl = lvl.sub(10).pow(0.9).add(10)
+                if (player.achs.includes(28)) lvl = lvl.mul(1.05)
+                let eff = lvl.add(1).pow(1/4)
+                if (eff.gte(2)) eff = eff.sub(1).pow(2/3).add(1)
+                if (player.upgs.sac.includes(22)) eff = eff.pow(FUNCTIONS.lengths.megas.effect())
+                return eff
+            },
+        },
+        megas: {
+            req() { return player.megas.add(5).pow(2).sub(5) },
+            canReset() { return player.metas.gte(this.req()) },
+            reset() {
+                if (this.canReset()) {
+                    player.megas = player.megas.add(1)
+                    this.doReset()
+                }
+            },
+            doReset(msg) {
+                player.lengths = E(10)
+                for (let x = 1; x <= 10; x++) player.length_generators[x] = {
+                    amount: E(0),
+                    boughts: E(0),
+                }
+                player.mults = E(0)
+                player.metas = E(0)
+            },
+            effect() {
+                let lvl = player.megas
+                if (lvl.gte(10)) lvl = lvl.sub(10).pow(0.9).add(10)
+                let eff = lvl.add(1).pow(1/9)
                 return eff
             },
         },
@@ -126,6 +159,7 @@ const FUNCTIONS = {
         points() {
             let gain = player.lengths.add(1).log10().sub(19).max(0)
             if (player.upgs.sac.includes(13)) gain = gain.mul(UPGS.sac[13].effect())
+            if (player.upgs.sac.includes(21)) gain = gain.mul(ACHS.reward().lengths)
             return gain.floor()
         },
         canReset() { return this.points().gte(1) },
@@ -143,10 +177,26 @@ const FUNCTIONS = {
             }
             player.mults = E(0)
             player.metas = E(0)
+            player.megas = E(0)
         },
         effect() {
             let eff = player.sacrifices.add(1)
+            if (player.upgs.sac.includes(14)) eff = eff.pow(UPGS.sac[14].effect())
             return eff
+        },
+    },
+    unlocks: {
+        features: {
+            'automation': {
+                title() { return 'Automation' },
+                can() { return player.lengths.gte('e1000') },
+            },
+        },
+        get(id) {
+            if (this.features[id].can() && !player.unlocks.includes(id)) {
+                player.unlocks.push(id)
+                $.notify('You unlocked '+this.features[id].title()+'!', 'success')
+            }
         },
     },
 }
@@ -214,8 +264,8 @@ const UPGS = {
         type: 'normal',
         res: 'sacrifices',
 
-        cols: 3,
-        rows: 1,
+        cols: 4,
+        rows: 2,
 
         11: {
             unl() { return true },
@@ -244,6 +294,30 @@ const UPGS = {
                 return eff
             },
             effDesc(x=this.effect()) { return format(x, 0)+'x' },
+        },
+        14: {
+            unl() { return true },
+            desc() { return 'Raise Sacrifice effect based on unspent ℓ_P.' },
+            cost() { return E(50000) },
+            can() { return player.sacrifices.gte(this.cost()) },
+            effect() {
+                let eff = player.lengths.add(1).log10().add(1).log10().max(1)
+                return eff
+            },
+            effDesc(x=this.effect()) { return '^'+format(x) },
+        },
+
+        21: {
+            unl() { return true },
+            desc() { return 'Achievement multiplier can affect Sacrifices gain.' },
+            cost() { return E(500000) },
+            can() { return player.sacrifices.gte(this.cost()) },
+        },
+        22: {
+            unl() { return true },
+            desc() { return 'Unlock Megaplier.' },
+            cost() { return E(5e7) },
+            can() { return player.sacrifices.gte(this.cost()) },
         },
     },
 }

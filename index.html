@@ -45,18 +45,26 @@
                     <div class="gen_part">Raises Multiplier base</div>
                     <div class="gen_part">Cost: {{ format(FUNCTIONS.lengths.metas.req(), 0) }} generators ℓ<sub>P</sub>-10</div>
                     <div class="gen_part"><button v-on:click="FUNCTIONS.lengths.metas.reset()" v-bind:class="{closed: !FUNCTIONS.lengths.metas.canReset()}">Reset ℓ<sub>P</sub> generators & Multiplier Powers for get Metaplier Powers.</button></div>
+                </div><div class="generator" v-if="player.upgs.sac.includes(22)">
+                    <div class="gen_part">Megaplier Powers ({{ format(player.megas, 0) }})</div>
+                    <div class="gen_part">^{{ format(FUNCTIONS.lengths.megas.effect()) }}</div>
+                    <div class="gen_part">Raises Metaplier effect</div>
+                    <div class="gen_part">Cost: {{ format(FUNCTIONS.lengths.megas.req(), 0) }} Metaplier Powers</div>
+                    <div class="gen_part"><button v-on:click="FUNCTIONS.lengths.megas.reset()" v-bind:class="{closed: !FUNCTIONS.lengths.megas.canReset()}">Reset all previous ℓ<sub>P</sub> features for get Megaplier Powers.</button></div>
                 </div>
             </div>
         </div><div v-if='player.tabs[0] == 1'>
             <button class="prestige_reset" v-bind:class="{closed: !FUNCTIONS.sacrifice.canReset()}" tooltip="Require 1e20 ℓ_P to reset." onclick="FUNCTIONS.sacrifice.reset()">Sacrifice ℓ<sub>P</sub> for<br>{{ format(FUNCTIONS.sacrifice.points(), 0) }}<br>Sacrifices</button>
             <br><br>You have <h2>{{ format(player.sacrifices, 0) }}</h2> Sacrifices, which multiples ℓ<sub>P</sub> generators gain by <h2>{{ format(FUNCTIONS.sacrifice.effect(), 0) }}</h2><br><br>
             <div v-for='r in UPGS.sac.rows' class="table_center">
-                <div v-for='c in UPGS.sac.cols' class="upgrade" v-if="UPGS.sac[r*10+c].unl()" v-bind:class="{closed: !UPGS.sac[r*10+c].can() && !player.upgs.sac.includes(r*10+c), unlocked: player.upgs.sac.includes(r*10+c)}" v-on:click="UPGS.buy('sac', r*10+c)">
-                    <div style="height: 70px;">
-                        {{ UPGS.sac[r*10+c].desc() }}
+                <div v-for='c in UPGS.sac.cols' v-if='UPGS.sac[r*10+c] != undefined'>
+                    <div class="upgrade" v-if="UPGS.sac[r*10+c].unl()" v-bind:class="{closed: !UPGS.sac[r*10+c].can() && !player.upgs.sac.includes(r*10+c), unlocked: player.upgs.sac.includes(r*10+c)}" v-on:click="UPGS.buy('sac', r*10+c)">
+                        <div style="height: 70px;">
+                            {{ UPGS.sac[r*10+c].desc() }}
+                        </div>
+                        Cost: {{ format(UPGS.sac[r*10+c].cost(), 0) }} Sacrifices
+                        <span v-if="UPGS.sac[r*10+c].effect"><br>Currently: {{ UPGS.sac[r*10+c].effDesc() }}</span>
                     </div>
-                    Cost: {{ format(UPGS.sac[r*10+c].cost(), 0) }} Sacrifices
-                    <span v-if="UPGS.sac[r*10+c].effect"><br>Currently: {{ UPGS.sac[r*10+c].effDesc() }}</span>
                 </div>
             </div>
         </div><div v-if='player.tabs[0] == 2'>
@@ -73,6 +81,21 @@
             <button onclick="if (confirm('You wanted to RESET your progress to new game?')) {wipe(); location.reload()}">WIPE</button>
             <button onclick="exporty()">Export</button>
             <button onclick="importy()">Import</button>
+        </div><div v-if='player.tabs[0] == 4'>
+            <div class="table_center">
+                <div class="table_center" style="width: 1100px;">
+                    <div class="automation" v-for="x in 10">
+                        Generator ℓ<sub>P</sub>-{{ x }}<br><br>
+                        Is Active: <input type="checkbox" v-model="player.automation.l_gens[x]">
+                    </div><div class="automation">
+                        Multiplier Powers<br><br>
+                        Is Active: <input type="checkbox" v-model="player.automation.mult">
+                    </div><div class="automation">
+                        Meta Powers<br><br>
+                        Is Active: <input type="checkbox" v-model="player.automation.meta">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

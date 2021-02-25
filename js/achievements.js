@@ -92,6 +92,31 @@ const ACHS = {
         desc() { return 'Get 3 Metaplier Powers.' },
         unl() { return player.metas.gte(3) },
     },
+    24: {
+        title() { return "Ugh, where's tier?" },
+        desc() { return 'Buy 1,000 Generators ℓ_P-1. Reward: Generator ℓ_P-1 are stronger.' },
+        unl() { return player.length_generators[1].boughts.gte(1e3) },
+    },
+    25: {
+        title() { return 'Ten Multiples By Zero' },
+        desc() { return 'Get 1e200 ℓ_P without buying Generators ℓ_P-10 or Multiplier Powers.' },
+        unl() { return player.lengths.gte(1e200) && player.mults.lte(0) && player.length_generators[10].boughts.lte(0) },
+    },
+    26: {
+        title() { return 'I cannot believe first generator' },
+        desc() { return 'Get 1e1000 ℓ_P, but have only purchased ONE Generator ℓ_P-1. Reward: Generator ℓ_P-1 are stronger.' },
+        unl() { return player.lengths.gte('e1000') && player.length_generators[1].boughts.lte(1) },
+    },
+    28: {
+        title() { return '(Multi^3)plier' },
+        desc() { return 'Get Megaplier Powers. Reward: Metaplier Powers are 5% stronger.' },
+        unl() { return player.megas.gte(1) },
+    },
+    29: {
+        title() { return '((Multi^3)plier)^2' },
+        desc() { return 'Get 2 Megaplier Powers.' },
+        unl() { return player.megas.gte(2) },
+    },
     30: {
         title() { return 'Self-Break Infinity' },
         desc() { return 'Get '+format(E(2).pow(1024))+' ℓ_P. Reward: Generators ℓ_P are 10% stronger.' },

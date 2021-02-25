@@ -96,6 +96,13 @@ h2 {
 	visibility: hidden;
 }
 
+.automation {
+	width: 200px;
+    height: 120px;
+    border: solid 3px black;
+	background-color: darkslategrey;
+}
+
 [tooltip] {
 	position: relative;
 	z-index: 2;
